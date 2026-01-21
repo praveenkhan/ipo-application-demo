@@ -1,0 +1,57 @@
+.ap-container {
+  width: 90%;
+  margin: auto;
+  padding: 20px;
+}
+
+.ap-filter {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.ap-filter input,
+.ap-filter select {
+  padding: 8px;
+  font-size: 14px;
+}
+
+.ap-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ap-table th,
+.ap-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.ap-table th {
+  cursor: pointer;
+  background: #f7f7f7;
+}
+
+.ap-btn {
+  padding: 6px 12px;
+  background: #e63946;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.confirmed {
+  color: green;
+  font-weight: bold;
+}
+
+.cancelled {
+  color: red;
+  font-weight: bold;
+}
+
+.empty {
+  text-align: center;
+  padding: 20px;
+}

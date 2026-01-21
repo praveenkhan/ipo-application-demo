@@ -1,0 +1,104 @@
+.booking-container {
+  max-width: 450px;
+  margin: 50px auto;
+  background: #ffffff;
+  padding: 28px;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+  font-family: "Inter", sans-serif;
+}
+
+.booking-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1e293b;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+/* FORM */
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.booking-form input,
+.booking-form select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f8fafc;
+}
+
+.booking-form input:focus,
+.booking-form select:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+/* BUTTON */
+.booking-form button {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.booking-form button:hover {
+  background: #1e3a8a;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 10px;
+  width: 320px;
+  text-align: center;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+}
+
+.modal-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-confirm {
+  background-color: #0099ff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background-color: #ccc;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  color: #333;
+  cursor: pointer;
+}

@@ -1,0 +1,6 @@
+1.env
+2.npm inti -y
+3.npm install express mongoose dotenv
+4.npm install nodemon
+5. npm install express-validator 
+6. "type":"module"
