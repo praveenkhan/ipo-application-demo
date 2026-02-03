@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import API_BASE_URL from "../config/api";
 import "./Register.css";
 
 export default function Register() {
@@ -34,7 +35,7 @@ export default function Register() {
       return alert("Passwords do not match");
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
+      await axios.post(`${API_BASE_URL}/api/auth/register`, {
         name: form.name,
         email: form.email,
         phone: form.phone,
@@ -61,7 +62,6 @@ export default function Register() {
       {/* RIGHT PANEL */}
       <div className="register-right">
         <form className="register-card" onSubmit={handleRegister}>
-      
           <span className="subtitle">REGISTER</span>
 
           <input

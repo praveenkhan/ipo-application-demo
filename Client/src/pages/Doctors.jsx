@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import API_BASE_URL from "../config/api";
 import "./Doctors.css";
 
-const API_URL = "http://localhost:5000/api/doctors";
+const API_URL = `${API_BASE_URL}/api/doctors`;
 
 function Doctors() {
   const [doctors, setDoctors] = useState([]);

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import API_BASE_URL from "../config/api";
 // import "./MyAppointments.css";
 
-const API = "http://localhost:5000/api/appointments/my";
+const API = `${API_BASE_URL}/api/appointments/my`;
 
 export default function MyAppointments() {
   const [appointments, setAppointments] = useState([]);

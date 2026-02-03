@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config/api";
 import "./BookAppointment.css";
 
-const DOCTOR_API = "http://localhost:5000/api/doctors";
-const APPOINTMENT_API = "http://localhost:5000/api/appointments";
+const DOCTOR_API = `${API_BASE_URL}/api/doctors`;
+const APPOINTMENT_API = `${API_BASE_URL}/api/appointments`;
 
 function generateSlots(start, end, duration = 30) {
   const slots = [];
@@ -69,7 +70,7 @@ export default function BookAppointment() {
     const allSlots = generateSlots(
       doctor.startTime,
       doctor.endTime,
-      doctor.slotDuration || 30
+      doctor.slotDuration || 30,
     );
 
     const today = new Date().toISOString().split("T")[0];

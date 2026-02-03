@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import API_BASE_URL from "../config/api";
 import "./DoctorProfile.css";
 
-const DOCTOR_API = "http://localhost:5000/api/doctors";
-const APPOINTMENT_API = "http://localhost:5000/api/appointments/";
+const DOCTOR_API = `${API_BASE_URL}/api/doctors`;
+const APPOINTMENT_API = `${API_BASE_URL}/api/appointments/`;
 
 // Generate slots between start & end time
 function generateSlots(start, end, duration) {
@@ -36,8 +37,8 @@ function DoctorProfile() {
       .then((res) => res.json())
       .then((data) => setDoctor(data))
       .catch(console.error);
-      console.log("Doctor ID from URL:", id);
-      console.log("Fetching:", `${DOCTOR_API}/${id}`);
+    console.log("Doctor ID from URL:", id);
+    console.log("Fetching:", `${DOCTOR_API}/${id}`);
 
     // Fetch all appointments
     fetch(APPOINTMENT_API)
@@ -52,7 +53,7 @@ function DoctorProfile() {
   const allSlots = generateSlots(
     doctor.startTime,
     doctor.endTime,
-    doctor.slotDuration
+    doctor.slotDuration,
   );
 
   const today = new Date().toISOString().split("T")[0];

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import API_BASE_URL from "../config/api";
 
-const API = "http://localhost:5000/api/admin/appointments";
-const DOCTOR_API = "http://localhost:5000/api/admin/doctors";
+const API = `${API_BASE_URL}/api/admin/appointments`;
+const DOCTOR_API = `${API_BASE_URL}/api/admin/doctors`;
 
 export default function AdminDashboard() {
   const token = localStorage.getItem("token");
@@ -182,7 +183,7 @@ export default function AdminDashboard() {
                   onClick={() =>
                     updateDoctorStatus(
                       d._id,
-                      d.status === "active" ? "inactive" : "active"
+                      d.status === "active" ? "inactive" : "active",
                     )
                   }
                 >

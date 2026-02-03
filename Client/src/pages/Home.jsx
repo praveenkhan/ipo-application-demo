@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import API_BASE_URL from "../config/api";
 import "./Home.css";
 
-const API_URL = "http://localhost:5000/api/doctors";
+const API_URL = `${API_BASE_URL}/api/doctors`;
 
 function Home() {
   const [specialties, setSpecialties] = useState([]);
@@ -29,7 +30,7 @@ function Home() {
   const filtered = specialties.filter(
     (s) =>
       s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.description.toLowerCase().includes(search.toLowerCase())
+      s.description.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
