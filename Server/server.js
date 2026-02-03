@@ -11,11 +11,8 @@ import connectDB from "./config/db.js";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-  })
-);
+// Allow CORS from the frontend during development. Use a specific origin in production.
+app.use(cors());
 app.use(express.json());
 connectDB();
 
@@ -23,6 +20,10 @@ app.use("/api/doctors", doctorRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.get("/", (req, res) => {
+  res.send("Hospital Booking API is running 🚀");
+});
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
