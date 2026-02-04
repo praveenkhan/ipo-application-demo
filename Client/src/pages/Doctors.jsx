@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import API_BASE_URL from "../config/api";
 import "./Doctors.css";
+import { useLocation } from "react-router-dom";
+
 
 const API_URL = `${API_BASE_URL}/api/doctors`;
 
 function Doctors() {
   const [doctors, setDoctors] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(selectedSpec);
+
 
   useEffect(() => {
     fetch(API_URL)

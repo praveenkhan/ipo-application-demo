@@ -18,6 +18,8 @@ export default function Navbar() {
     <nav style={{ padding: "10px", background: "#f4f4f4" }}>
       <Link to="/home">Home</Link>
       {" | "}
+      <Link to="/doctors">Doctors</Link>
+      {" | "}
       <Link to="/book">Book Appointment</Link>
       {" | "}
       <Link to="/my-appointments">My Appointments</Link>

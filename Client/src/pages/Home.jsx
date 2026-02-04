@@ -74,14 +74,14 @@ function Home() {
             <h3>{s.name}</h3>
             <p>{s.description}</p>
 
-            {/* 🔥 Always go to doctors page */}
-            <Link to="/doctors" className="book-btn">
+            <Link
+              to={`/doctors?specialization=${encodeURIComponent(s.name)}`}
+              className="book-btn"
+            >
               Book Now
             </Link>
           </div>
         ))}
-
-        {filtered.length === 0 && <p>No matches found.</p>}
       </div>
 
       {/* ABOUT */}
