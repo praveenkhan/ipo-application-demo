@@ -96,15 +96,18 @@ export default function AdminDashboard() {
   /* ---------------- DOCTOR CONTROL ---------------- */
 
   const toggleDoctor = async (d) => {
+    const newStatus =
+      (d.status || "").toString().toLowerCase() === "active"
+        ? "inactive"
+        : "active";
+
     await fetch(`${DOCTOR_API}/${d._id}`, {
       method: "PATCH",
       headers: {
         Authorization: "Bearer " + token,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        status: d.status === "Active" ? "Inactive" : "Active",
-      }),
+      body: JSON.stringify({ status: newStatus }),
     });
 
     fetchDoctors();

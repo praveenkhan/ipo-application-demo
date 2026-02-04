@@ -1,4 +1,3 @@
-
 import express from "express";
 import authMiddleware from "../middleware/auth.middleware.js";
 import adminMiddleware from "../middleware/admin.middleware.js";
@@ -14,7 +13,7 @@ import {
   getAllAppointments,
   updateAppointmentStatus,
   updatetime,
-  deletedoctor
+  deletedoctor,
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -24,45 +23,43 @@ router.get(
   "/appointments",
   authMiddleware,
   adminMiddleware,
-  getAllAppointments
+  getAllAppointments,
 );
 
-/* UPDATE STATUS */
-
+/* DOCTORS */
 router.post("/doctors", authMiddleware, adminMiddleware, addDoctor);
-router.patch(
-  "/appointments/:id",
-  authMiddleware,
-  adminMiddleware,
-  updateAppointmentStatus
-);
-
+router.get("/doctors", authMiddleware, adminMiddleware, getDoctors);
 router.get(
-  "/doctors",
+  "/doctors/specialization",
   authMiddleware,
   adminMiddleware,
-  getDoctors,
   getDoctorsBySpecialization,
-  getDoctorById
 );
-
+router.get("/doctors/:id", authMiddleware, adminMiddleware, getDoctorById);
 router.patch(
   "/doctors/:id",
   authMiddleware,
   adminMiddleware,
   updateDoctorStatus,
-  addDoctor
+);
+router.patch(
+  "/doctors/:id/delete",
+  authMiddleware,
+  adminMiddleware,
+  deletedoctor,
+);
+
+/* APPOINTMENTS */
+router.patch(
+  "/appointments/:id",
+  authMiddleware,
+  adminMiddleware,
+  updateAppointmentStatus,
 );
 router.patch(
   "/appointments/:id/reschedule",
+  authMiddleware,
+  adminMiddleware,
   updatetime,
-  authMiddleware,
-  adminMiddleware,
-);
-router.get(
-  "api/admin/doctors/:id/delete",
-  deletedoctor,
-  authMiddleware,
-  adminMiddleware,
 );
 export default router;
