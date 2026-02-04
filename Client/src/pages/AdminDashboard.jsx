@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../config/api";
 import "./AdminDashboard.css";
+import { toast } from "react-hot-toast";
 
 const APPT_API = `${API_BASE_URL}/api/admin/appointments`;
 const DOCTOR_API = `${API_BASE_URL}/api/admin/doctors`;
@@ -26,10 +27,19 @@ export default function AdminDashboard() {
   /* ---------------- LOAD DOCTORS ---------------- */
 
   const fetchDoctors = async () => {
-    const res = await fetch(DOCTOR_API, {
-      headers: { Authorization: "Bearer " + token },
-    });
-    setDoctors(await res.json());
+    try {
+      const res = await fetch(DOCTOR_API, {
+        headers: { Authorization: "Bearer " + token },
+      });
+
+      if (!res.ok) throw new Error("Failed to load doctors");
+
+      const data = await res.json();
+      setDoctors(data);
+    } catch (err) {
+      toast.error(err.message || "Failed to load doctors");
+      setDoctors([]);
+    }
   };
 
   useEffect(() => {
@@ -101,25 +111,39 @@ export default function AdminDashboard() {
         ? "inactive"
         : "active";
 
-    await fetch(`${DOCTOR_API}/${d._id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status: newStatus }),
-    });
+    try {
+      const res = await fetch(`${DOCTOR_API}/${d._id}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
-    fetchDoctors();
+      if (!res.ok) throw new Error("Failed to update doctor status");
+
+      toast.success("Doctor status updated");
+      fetchDoctors();
+    } catch (err) {
+      toast.error(err.message || "Failed to update doctor");
+    }
   };
 
   const deleteDoctor = async (id) => {
-    await fetch(`${DOCTOR_API}/${id}/delete`, {
-      method: "PATCH",
-      headers: { Authorization: "Bearer " + token },
-    });
+    try {
+      const res = await fetch(`${DOCTOR_API}/${id}/delete`, {
+        method: "PATCH",
+        headers: { Authorization: "Bearer " + token },
+      });
 
-    fetchDoctors();
+      if (!res.ok) throw new Error("Failed to delete doctor");
+
+      toast.success("Doctor deleted");
+      fetchDoctors();
+    } catch (err) {
+      toast.error(err.message || "Delete failed");
+    }
   };
 
   const stats = {
@@ -236,7 +260,9 @@ export default function AdminDashboard() {
 
               <td>
                 <button onClick={() => toggleDoctor(d)}>
-                  {d.status === "Active" ? "Disable" : "Enable"}
+                  {(d.status || "").toString().toLowerCase() === "active"
+                    ? "Disable"
+                    : "Enable"}
                 </button>
 
                 <button onClick={() => deleteDoctor(d._id)}>Delete</button>
