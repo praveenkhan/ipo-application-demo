@@ -73,3 +73,18 @@ export const updateDoctorStatus = async (req, res) => {
   res.json(doctor);
 };
 
+
+export const deletedoctor = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.params.id);
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+
+    doctor.isDeleted = true;
+    await doctor.save();
+
+    res.json({ message: "Doctor deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+

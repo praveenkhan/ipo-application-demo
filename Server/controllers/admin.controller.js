@@ -80,7 +80,7 @@ export const getAllDoctors = async (req, res) => {
 
 // update and delete date and time//
 
-export const updatetime = async (req, res) => {
+export const rescheduleAppointment = async (req, res) => {
   const { date, time } = req.body;
 
   const appt = await Appointment.findById(req.params.id);
@@ -96,16 +96,4 @@ export const updatetime = async (req, res) => {
   res.json(appt);
 };
 
-export const deletedoctor = async (req, res) => {
-  try {
-    const doctor = await Doctor.findById(req.params.id);
-    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
 
-    doctor.isDeleted = true;
-    await doctor.save();
-
-    res.json({ message: "Doctor deleted" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
