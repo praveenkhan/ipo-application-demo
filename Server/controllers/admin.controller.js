@@ -74,3 +74,21 @@ export const getAllDoctors = async (req, res) => {
   const doctors = await Doctor.find().sort({ createdAt: -1 });
   res.json(doctors);
 };
+
+// update and delete date and time//
+
+export const updatetime = async (req,res)=>{
+  const { date, time } = req.body;
+
+  const appt = await Appointment.findById(req.params.id);
+
+  if(!appt) return res.status(404).json({msg:"Appointment not found"});
+
+  appt.date = date;
+  appt.time = time;
+  appt.status = "confirmed";
+
+  await appt.save();
+
+  res.json(appt);
+};

@@ -13,6 +13,7 @@ import {
 import {
   getAllAppointments,
   updateAppointmentStatus,
+  updatetime
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -51,4 +52,5 @@ router.patch(
   updateDoctorStatus,
   addDoctor
 );
+router.patch("/appointments/:id/reschedule",updatetime)
 export default router;

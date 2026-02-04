@@ -6,7 +6,9 @@ const DOCTOR_API = `${API_BASE_URL}/api/doctors`;
 
 export default function AdminDashboard() {
   const token = localStorage.getItem("token");
-
+  const [editing, setEditing] = useState(null);
+  const [newDate, setNewDate] = useState("");
+  const [newTime, setNewTime] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [appointments, setAppointments] = useState([]);
@@ -32,24 +34,7 @@ export default function AdminDashboard() {
   }, []);
 
   /* ---------------- FETCH APPOINTMENTS ---------------- */
-  // const fetchAppointments = async () => {
-  //   const params = new URLSearchParams();
-  //   if (filters.date) params.set("date", filters.date);
-  //   if (filters.doctor) params.set("doctor", filters.doctor);
-  //   if (filters.search) params.set("search", filters.search);
-  //   if (filters.status) params.set("status", filters.status);
-
-  //   const res = await fetch(`${API}?${params.toString()}`, {
-  //     headers: { Authorization: "Bearer " + token },
-  //   });
-
-  //   const data = await res.json();
-  //   setAppointments(data);
-  // };
-
-  // useEffect(() => {
-  //   fetchAppointments();
-  // }, [filters]);
+  /* Fetch appointments using current `filters` (see `fetchAppointments` below) */
 
   const fetchAppointments = async () => {
     try {
@@ -188,6 +173,7 @@ export default function AdminDashboard() {
                     <button onClick={() => updateStatus(a._id, "cancelled")}>
                       Cancel
                     </button>
+                    <button onClick={() => setEditing(a)}>Edit</button>
                   </>
                 ) : (
                   "-"
@@ -249,6 +235,33 @@ export default function AdminDashboard() {
         <div>Confirmed: {stats.confirmed}</div>
         <div>Cancelled: {stats.cancelled}</div>
       </div>
+
+      {editing && (
+        <div className="modal">
+          <h3>Reschedule</h3>
+
+          <input type="date" onChange={(e) => setNewDate(e.target.value)} />
+          <input type="time" onChange={(e) => setNewTime(e.target.value)} />
+
+          <button
+            onClick={async () => {
+              await fetch(`${API}/${editing._id}/reschedule`, {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({ date: newDate, time: newTime }),
+              });
+
+              setEditing(null);
+              fetchAppointments();
+            }}
+          >
+            Save
+          </button>
+        </div>
+      )}
     </div>
   );
 }
