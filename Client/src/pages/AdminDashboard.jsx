@@ -263,6 +263,9 @@ export default function AdminDashboard() {
                   {(d.status || "").toString().toLowerCase() === "active"
                     ? "Disable"
                     : "Enable"}
+                  {(d.status || "").toString().toLowerCase() === "inactive"
+                    ? "Disable"
+                    : "Enable"}
                 </button>
 
                 <button onClick={() => deleteDoctor(d._id)}>Delete</button>
