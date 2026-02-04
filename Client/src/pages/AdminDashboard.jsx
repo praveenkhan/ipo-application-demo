@@ -1,62 +1,58 @@
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../config/api";
+import "./AdminDashboard.css";
 
-const API = `${API_BASE_URL}/api/admin/appointments`;
-const DOCTOR_API = `${API_BASE_URL}/api/doctors`;
+const APPT_API = `${API_BASE_URL}/api/admin/appointments`;
+const DOCTOR_API = `${API_BASE_URL}/api/admin/doctors`;
 
 export default function AdminDashboard() {
   const token = localStorage.getItem("token");
+
+  const [appointments, setAppointments] = useState([]);
+  const [doctors, setDoctors] = useState([]);
   const [editing, setEditing] = useState(null);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [appointments, setAppointments] = useState([]);
-  const [doctors, setDoctors] = useState([]);
+
   const [filters, setFilters] = useState({
-    date: "",
-    doctor: "",
-    search: "",
     status: "",
+    doctor: "",
+    date: "",
+    search: "",
   });
 
-  /* ---------------- FETCH DOCTORS ---------------- */
+  /* ---------------- LOAD DOCTORS ---------------- */
+
   const fetchDoctors = async () => {
     const res = await fetch(DOCTOR_API, {
       headers: { Authorization: "Bearer " + token },
     });
-    const data = await res.json();
-    setDoctors(data);
+    setDoctors(await res.json());
   };
 
   useEffect(() => {
     fetchDoctors();
   }, []);
 
-  /* ---------------- FETCH APPOINTMENTS ---------------- */
-  /* Fetch appointments using current `filters` (see `fetchAppointments` below) */
+  /* ---------------- LOAD APPOINTMENTS ---------------- */
 
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-      setError("");
 
-      const params = new URLSearchParams();
-      if (filters.date) params.set("date", filters.date);
-      if (filters.doctor) params.set("doctor", filters.doctor);
-      if (filters.search) params.set("search", filters.search);
-      if (filters.status) params.set("status", filters.status);
+      const params = new URLSearchParams(filters);
 
-      const res = await fetch(`${API}?${params.toString()}`, {
+      const res = await fetch(`${APPT_API}?${params}`, {
         headers: { Authorization: "Bearer " + token },
       });
 
-      if (!res.ok) throw new Error("Failed to load appointments");
+      if (!res.ok) throw new Error("Failed");
 
-      const data = await res.json();
-      setAppointments(data);
-    } catch (err) {
-      setError(err.message || "Failed to load appointments");
+      setAppointments(await res.json());
+    } catch {
+      setError("Cannot load appointments");
     } finally {
       setLoading(false);
     }
@@ -64,21 +60,63 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchAppointments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
-  /* ---------------- UPDATE APPOINTMENT STATUS ---------------- */
+  /* ---------------- STATUS UPDATE ---------------- */
+
   const updateStatus = async (id, status) => {
-    await fetch(`${API}/${id}`, {
+    await fetch(`${APPT_API}/${id}`, {
       method: "PATCH",
       headers: {
-        "Content-Type": "application/json",
         Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ status }),
     });
 
     fetchAppointments();
+  };
+
+  /* ---------------- RESCHEDULE ---------------- */
+
+  const reschedule = async () => {
+    await fetch(`${APPT_API}/${editing._id}/reschedule`, {
+      method: "PATCH",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ date: newDate, time: newTime }),
+    });
+
+    setEditing(null);
+    fetchAppointments();
+  };
+
+  /* ---------------- DOCTOR CONTROL ---------------- */
+
+  const toggleDoctor = async (d) => {
+    await fetch(`${DOCTOR_API}/${d._id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status: d.status === "Active" ? "Inactive" : "Active",
+      }),
+    });
+
+    fetchDoctors();
+  };
+
+  const deleteDoctor = async (id) => {
+    await fetch(`${DOCTOR_API}/${id}/delete`, {
+      method: "PATCH",
+      headers: { Authorization: "Bearer " + token },
+    });
+
+    fetchDoctors();
   };
 
   const stats = {
@@ -88,32 +126,20 @@ export default function AdminDashboard() {
     cancelled: appointments.filter((a) => a.status === "cancelled").length,
   };
 
-  /* ---------------- UPDATE DOCTOR STATUS ---------------- */
-  const updateDoctorStatus = async (id, status) => {
-    await fetch(`${DOCTOR_API}/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-      body: JSON.stringify({ status }),
-    });
-
-    fetchDoctors();
-  };
-
   return (
     <div className="admin-container">
-      <h3>Appointments</h3>
+      <h2>Admin Dashboard</h2>
+
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* FILTERS */}
+
       <div className="filters">
         <select
           onChange={(e) => setFilters({ ...filters, status: e.target.value })}
         >
-          <option value="">All Status</option>
+          <option value="">All</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
           <option value="cancelled">Cancelled</option>
@@ -121,19 +147,15 @@ export default function AdminDashboard() {
 
         <input
           type="date"
-          value={filters.date}
           onChange={(e) => setFilters({ ...filters, date: e.target.value })}
         />
 
         <select
-          value={filters.doctor}
           onChange={(e) => setFilters({ ...filters, doctor: e.target.value })}
         >
-          <option value="">All Doctors</option>
+          <option value="">Doctors</option>
           {doctors.map((d) => (
-            <option key={d._id} value={d.name}>
-              {d.name}
-            </option>
+            <option key={d._id}>{d.name}</option>
           ))}
         </select>
 
@@ -143,7 +165,8 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* APPOINTMENTS TABLE */}
+      {/* APPOINTMENTS */}
+
       <table>
         <thead>
           <tr>
@@ -164,8 +187,9 @@ export default function AdminDashboard() {
               <td>{a.doctorName}</td>
               <td>{new Date(a.date).toLocaleDateString()}</td>
               <td>{a.status}</td>
+
               <td>
-                {a.status === "pending" ? (
+                {a.status === "pending" && (
                   <>
                     <button onClick={() => updateStatus(a._id, "confirmed")}>
                       Confirm
@@ -175,8 +199,6 @@ export default function AdminDashboard() {
                     </button>
                     <button onClick={() => setEditing(a)}>Edit</button>
                   </>
-                ) : (
-                  "-"
                 )}
               </td>
             </tr>
@@ -184,13 +206,15 @@ export default function AdminDashboard() {
         </tbody>
       </table>
 
-      {/* DOCTORS TABLE */}
+      {/* DOCTORS */}
+
       <h3>Doctors</h3>
+
       <table>
         <thead>
           <tr>
             <th>Name</th>
-            <th>Specialization</th>
+            <th>Spec</th>
             <th>Time</th>
             <th>Status</th>
             <th>Action</th>
@@ -203,38 +227,32 @@ export default function AdminDashboard() {
               <td>{d.name}</td>
               <td>{d.specialization}</td>
               <td>
-                {d.startTime} – {d.endTime}
+                {d.startTime} - {d.endTime}
               </td>
               <td>{d.status}</td>
+
               <td>
-                <button
-                  onClick={() =>
-                    updateDoctorStatus(
-                      d._id,
-                      d.status === "active" ? "inactive" : "active",
-                    )
-                  }
-                >
-                  {d.status === "active" ? "Disable" : "Enable"}
+                <button onClick={() => toggleDoctor(d)}>
+                  {d.status === "Active" ? "Disable" : "Enable"}
                 </button>
-                <button
-                  onClick={() => {
-                    doctors.filter((d) => !d.isDeleted);
-                  }}
-                >
-                  delete
-                </button>
+
+                <button onClick={() => deleteDoctor(d._id)}>Delete</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* STATS */}
+
       <div className="stats">
         <div>Total: {stats.total}</div>
         <div>Pending: {stats.pending}</div>
         <div>Confirmed: {stats.confirmed}</div>
         <div>Cancelled: {stats.cancelled}</div>
       </div>
+
+      {/* MODAL */}
 
       {editing && (
         <div className="modal">
@@ -243,23 +261,8 @@ export default function AdminDashboard() {
           <input type="date" onChange={(e) => setNewDate(e.target.value)} />
           <input type="time" onChange={(e) => setNewTime(e.target.value)} />
 
-          <button
-            onClick={async () => {
-              await fetch(`${API}/${editing._id}/reschedule`, {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + token,
-                },
-                body: JSON.stringify({ date: newDate, time: newTime }),
-              });
-
-              setEditing(null);
-              fetchAppointments();
-            }}
-          >
-            Save
-          </button>
+          <button onClick={reschedule}>Save</button>
+          <button onClick={() => setEditing(null)}>Close</button>
         </div>
       )}
     </div>

@@ -1,5 +1,5 @@
 import Appointment from "../models/Appointment.js";
-
+import Doctor from "../models/Doctor.js";
 
 /* ---------------- GET ALL APPOINTMENTS ---------------- */
 
@@ -26,7 +26,7 @@ export const getAllAppointments = async (req, res) => {
     // 🔍 Search patient name AFTER populate
     if (search) {
       appointments = appointments.filter((a) =>
-        a.userId?.name?.toLowerCase().includes(search.toLowerCase())
+        a.userId?.name?.toLowerCase().includes(search.toLowerCase()),
       );
     }
 
@@ -68,21 +68,24 @@ export const updateAppointmentStatus = async (req, res) => {
   }
 };
 
-
 /// GET DOCTORS FOR FILTER
 export const getAllDoctors = async (req, res) => {
-  const doctors = await Doctor.find().sort({ createdAt: -1 });
-  res.json(doctors);
+  try {
+    const doctors = await Doctor.find().sort({ createdAt: -1 });
+    res.json(doctors);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 // update and delete date and time//
 
-export const updatetime = async (req,res)=>{
+export const updatetime = async (req, res) => {
   const { date, time } = req.body;
 
   const appt = await Appointment.findById(req.params.id);
 
-  if(!appt) return res.status(404).json({msg:"Appointment not found"});
+  if (!appt) return res.status(404).json({ msg: "Appointment not found" });
 
   appt.date = date;
   appt.time = time;
@@ -91,4 +94,18 @@ export const updatetime = async (req,res)=>{
   await appt.save();
 
   res.json(appt);
+};
+
+export const deletedoctor = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.params.id);
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+
+    doctor.isDeleted = true;
+    await doctor.save();
+
+    res.json({ message: "Doctor deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

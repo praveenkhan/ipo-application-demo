@@ -52,5 +52,10 @@ router.patch(
   updateDoctorStatus,
   addDoctor
 );
-router.patch("/appointments/:id/reschedule",updatetime)
+router.patch(
+  "/appointments/:id/reschedule",
+  updatetime,
+  authMiddleware,
+  adminMiddleware,
+);
 export default router;
