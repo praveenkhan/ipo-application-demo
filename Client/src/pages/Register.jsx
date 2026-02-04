@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 import API_BASE_URL from "../config/api";
 import "./Register.css";
 
@@ -22,17 +23,18 @@ export default function Register() {
     e.preventDefault();
 
     if (form.name.trim().length < 3)
-      return alert("Name must be at least 3 characters");
+      return toast.error("Name must be at least 3 characters");
 
-    if (!form.email.includes("@")) return alert("Enter valid email");
+    if (!form.email.includes("@")) return toast.error("Enter valid email");
 
-    if (form.phone.length !== 10) return alert("Enter valid phone number");
+    if (form.phone.length !== 10)
+      return toast.error("Enter valid phone number");
 
     if (form.password.length < 6)
-      return alert("Password must be at least 6 characters");
+      return toast.error("Password must be at least 6 characters");
 
     if (form.password !== form.confirmPassword)
-      return alert("Passwords do not match");
+      return toast.error("Passwords do not match");
 
     try {
       await axios.post(`${API_BASE_URL}/api/auth/register`, {
@@ -42,10 +44,10 @@ export default function Register() {
         password: form.password,
       });
 
-      alert("Registration successful. Please login.");
+      toast.success("Registration successful. Please login.");
       navigate("/login");
     } catch (err) {
-      alert(err.response?.data?.msg || "Registration failed");
+      toast.error(err.response?.data?.msg || "Registration failed");
     }
   };
 

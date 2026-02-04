@@ -43,7 +43,7 @@ export default function App() {
         <Route path="/my-appointments" element={<MyAppointments />} />
 
         {/* ADMIN */}
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin" element={ role === "admin" ? <AdminDashboard /> : <Navigate to="/home" />} />
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" />} />

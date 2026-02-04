@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../config/api";
 import "./BookAppointment.css";
+import { toast } from "react-hot-toast";
 
 const DOCTOR_API = `${API_BASE_URL}/api/doctors`;
 const APPOINTMENT_API = `${API_BASE_URL}/api/appointments`;
@@ -44,7 +45,7 @@ export default function BookAppointment() {
     fetch(`${DOCTOR_API}?status=active`)
       .then((res) => res.json())
       .then(setDoctors)
-      .catch(() => alert("Failed to load doctors"));
+      .catch(() => toast.error("Failed to load doctors"));
   }, []);
 
   /* ---------------- LOAD BOOKED SLOTS ---------------- */
@@ -121,7 +122,10 @@ export default function BookAppointment() {
       body: JSON.stringify(payload),
     });
 
-    if (!res.ok) return alert("Booking failed");
+    if (!res.ok) {
+      toast.error("Booking failed");
+      return;
+    }
 
     navigate("/my-appointments");
   };

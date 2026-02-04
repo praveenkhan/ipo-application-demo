@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import API_BASE_URL from "../config/api";
 
 const API = `${API_BASE_URL}/api/admin/appointments`;
-const DOCTOR_API = `${API_BASE_URL}/api/admin/doctors`;
+const DOCTOR_API = `${API_BASE_URL}/api/doctors`;
 
 export default function AdminDashboard() {
   const token = localStorage.getItem("token");
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [appointments, setAppointments] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [filters, setFilters] = useState({
@@ -30,23 +32,54 @@ export default function AdminDashboard() {
   }, []);
 
   /* ---------------- FETCH APPOINTMENTS ---------------- */
+  // const fetchAppointments = async () => {
+  //   const params = new URLSearchParams();
+  //   if (filters.date) params.set("date", filters.date);
+  //   if (filters.doctor) params.set("doctor", filters.doctor);
+  //   if (filters.search) params.set("search", filters.search);
+  //   if (filters.status) params.set("status", filters.status);
+
+  //   const res = await fetch(`${API}?${params.toString()}`, {
+  //     headers: { Authorization: "Bearer " + token },
+  //   });
+
+  //   const data = await res.json();
+  //   setAppointments(data);
+  // };
+
+  // useEffect(() => {
+  //   fetchAppointments();
+  // }, [filters]);
+
   const fetchAppointments = async () => {
-    const params = new URLSearchParams();
-    if (filters.date) params.set("date", filters.date);
-    if (filters.doctor) params.set("doctor", filters.doctor);
-    if (filters.search) params.set("search", filters.search);
-    if (filters.status) params.set("status", filters.status);
+    try {
+      setLoading(true);
+      setError("");
 
-    const res = await fetch(`${API}?${params.toString()}`, {
-      headers: { Authorization: "Bearer " + token },
-    });
+      const params = new URLSearchParams();
+      if (filters.date) params.set("date", filters.date);
+      if (filters.doctor) params.set("doctor", filters.doctor);
+      if (filters.search) params.set("search", filters.search);
+      if (filters.status) params.set("status", filters.status);
 
-    const data = await res.json();
-    setAppointments(data);
+      const res = await fetch(`${API}?${params.toString()}`, {
+        headers: { Authorization: "Bearer " + token },
+      });
+
+      if (!res.ok) throw new Error("Failed to load appointments");
+
+      const data = await res.json();
+      setAppointments(data);
+    } catch (err) {
+      setError(err.message || "Failed to load appointments");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchAppointments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   /* ---------------- UPDATE APPOINTMENT STATUS ---------------- */
@@ -61,6 +94,13 @@ export default function AdminDashboard() {
     });
 
     fetchAppointments();
+  };
+
+  const stats = {
+    total: appointments.length,
+    pending: appointments.filter((a) => a.status === "pending").length,
+    confirmed: appointments.filter((a) => a.status === "confirmed").length,
+    cancelled: appointments.filter((a) => a.status === "cancelled").length,
   };
 
   /* ---------------- UPDATE DOCTOR STATUS ---------------- */
@@ -80,6 +120,8 @@ export default function AdminDashboard() {
   return (
     <div className="admin-container">
       <h3>Appointments</h3>
+      {loading && <p>Loading...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* FILTERS */}
       <div className="filters">
@@ -189,11 +231,24 @@ export default function AdminDashboard() {
                 >
                   {d.status === "active" ? "Disable" : "Enable"}
                 </button>
+                <button
+                  onClick={() => {
+                    doctors.filter((d) => !d.isDeleted);
+                  }}
+                >
+                  delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <div className="stats">
+        <div>Total: {stats.total}</div>
+        <div>Pending: {stats.pending}</div>
+        <div>Confirmed: {stats.confirmed}</div>
+        <div>Cancelled: {stats.cancelled}</div>
+      </div>
     </div>
   );
 }
