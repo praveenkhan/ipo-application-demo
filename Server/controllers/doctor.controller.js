@@ -3,7 +3,7 @@ import Doctor from "../models/Doctor.js";
 // Get all doctors
 export const getDoctors = async (req, res) => {
   try {
-    const doctors = await Doctor.find();
+    const doctors = await Doctor.find({ isDeleted: { $ne: true } });
     res.json(doctors);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -21,6 +21,7 @@ export const getDoctorsBySpecialization = async (req, res) => {
 
     const doctors = await Doctor.find({
       specialization: name,
+      isDeleted: { $ne: true },
     });
 
     res.json(doctors);
