@@ -9,10 +9,18 @@ import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import connectDB from "./config/db.js";
 
+
 const app = express();
 
 // Allow CORS from the frontend during development. Use a specific origin in production.
-app.use(cors());
+
+
+app.use(
+  cors({
+    origin: "https://ipo-application-demo.vercel.app",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 connectDB();
 
