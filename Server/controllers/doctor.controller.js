@@ -53,7 +53,6 @@ export const addDoctor = async (req, res) => {
   }
 };
 
-
 export const updateDoctorStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -73,8 +72,7 @@ export const updateDoctorStatus = async (req, res) => {
   res.json(doctor);
 };
 
-
-export const deletedoctor = async (req, res) => {
+export const deleteDoctor = async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.params.id);
     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
@@ -87,4 +85,3 @@ export const deletedoctor = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
