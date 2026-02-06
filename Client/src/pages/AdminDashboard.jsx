@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../config/api";
-import "./AdminDashboard.css";
 import { toast } from "react-hot-toast";
+import "./AdminDashboard.css";
 
 const APPT_API = `${API_BASE_URL}/api/admin/appointments`;
 const DOCTOR_API = `${API_BASE_URL}/api/admin/doctors`;
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   const [appointments, setAppointments] = useState([]);
@@ -14,8 +16,7 @@ export default function AdminDashboard() {
   const [editing, setEditing] = useState(null);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const [filters, setFilters] = useState({
     status: "",
@@ -24,78 +25,78 @@ export default function AdminDashboard() {
     search: "",
   });
 
-  /* ---------------- LOAD DOCTORS ---------------- */
+  /* ---------- AUTH GUARD ---------- */
+
+  useEffect(() => {
+    if (!token) navigate("/login");
+  }, []);
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+
+  /* ---------- LOAD DOCTORS ---------- */
 
   const fetchDoctors = async () => {
     try {
-      const res = await fetch(DOCTOR_API, {
-        headers: { Authorization: "Bearer " + token },
-      });
+      const res = await fetch(DOCTOR_API, { headers });
 
-      if (!res.ok) throw new Error("Failed to load doctors");
+      if (res.status === 401) return navigate("/login");
 
-      const data = await res.json();
-      setDoctors(data);
-    } catch (err) {
-      toast.error(err.message || "Failed to load doctors");
-      setDoctors([]);
+      setDoctors(await res.json());
+    } catch {
+      toast.error("Failed loading doctors");
     }
   };
 
-  useEffect(() => {
-    fetchDoctors();
-  }, []);
-
-  /* ---------------- LOAD APPOINTMENTS ---------------- */
+  /* ---------- LOAD APPOINTMENTS ---------- */
 
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-
       const params = new URLSearchParams(filters);
 
-      const res = await fetch(`${APPT_API}?${params}`, {
-        headers: { Authorization: "Bearer " + token },
-      });
+      const res = await fetch(`${APPT_API}?${params}`, { headers });
 
-      if (!res.ok) throw new Error("Failed");
+      if (res.status === 401) return navigate("/login");
 
       setAppointments(await res.json());
     } catch {
-      setError("Cannot load appointments");
+      toast.error("Failed loading appointments");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    fetchDoctors();
     fetchAppointments();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(fetchAppointments, 400);
+    return () => clearTimeout(timer);
   }, [filters]);
 
-  /* ---------------- STATUS UPDATE ---------------- */
+  /* ---------- STATUS UPDATE ---------- */
 
   const updateStatus = async (id, status) => {
     await fetch(`${APPT_API}/${id}`, {
       method: "PATCH",
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({ status }),
     });
 
     fetchAppointments();
   };
 
-  /* ---------------- RESCHEDULE ---------------- */
+  /* ---------- RESCHEDULE ---------- */
 
   const reschedule = async () => {
     await fetch(`${APPT_API}/${editing._id}/reschedule`, {
       method: "PATCH",
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({ date: newDate, time: newTime }),
     });
 
@@ -103,62 +104,47 @@ export default function AdminDashboard() {
     fetchAppointments();
   };
 
-  /* ---------------- DOCTOR CONTROL ---------------- */
+  /* ---------- DOCTOR CONTROL ---------- */
 
-  const toggleDoctor = async (d) => {
-    const newStatus =
-      (d.status || "").toString().toLowerCase() === "active"
-        ? "inactive"
-        : "active";
+  const toggleDoctor = async (doc) => {
+    const status = doc.status === "active" ? "inactive" : "active";
 
-    try {
-      const res = await fetch(`${DOCTOR_API}/${d._id}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
+    await fetch(`${DOCTOR_API}/${doc._id}`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ status }),
+    });
 
-      if (!res.ok) throw new Error("Failed to update doctor status");
-
-      toast.success("Doctor status updated");
-      fetchDoctors();
-    } catch (err) {
-      toast.error(err.message || "Failed to update doctor");
-    }
+    fetchDoctors();
   };
 
   const deleteDoctor = async (id) => {
-    try {
-      const res = await fetch(`${DOCTOR_API}/${id}/delete`, {
-        method: "PATCH",
-        headers: { Authorization: "Bearer " + token },
-      });
+    await fetch(`${DOCTOR_API}/${id}/delete`, {
+      method: "PATCH",
+      headers,
+    });
 
-      if (!res.ok) throw new Error("Failed to delete doctor");
-
-      toast.success("Doctor deleted");
-      fetchDoctors();
-    } catch (err) {
-      toast.error(err.message || "Delete failed");
-    }
+    fetchDoctors();
   };
 
-  const stats = {
-    total: appointments.length,
-    pending: appointments.filter((a) => a.status === "pending").length,
-    confirmed: appointments.filter((a) => a.status === "confirmed").length,
-    cancelled: appointments.filter((a) => a.status === "cancelled").length,
-  };
+  /* ---------- STATS ---------- */
+
+  const stats = useMemo(() => {
+    return {
+      total: appointments.length,
+      pending: appointments.filter((a) => a.status === "pending").length,
+      confirmed: appointments.filter((a) => a.status === "confirmed").length,
+      cancelled: appointments.filter((a) => a.status === "cancelled").length,
+    };
+  }, [appointments]);
+
+  /* ---------- UI ---------- */
+
+  if (loading) return <h2 style={{ textAlign: "center" }}>Loading…</h2>;
 
   return (
     <div className="admin-container">
       <h2>Admin Dashboard</h2>
-
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* FILTERS */}
 
@@ -166,7 +152,7 @@ export default function AdminDashboard() {
         <select
           onChange={(e) => setFilters({ ...filters, status: e.target.value })}
         >
-          <option value="">All</option>
+          <option value="">All Status</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
           <option value="cancelled">Cancelled</option>
@@ -194,60 +180,54 @@ export default function AdminDashboard() {
 
       {/* APPOINTMENTS */}
 
-      <table>
-        <thead>
-          <tr>
-            <th>Patient</th>
-            <th>Email</th>
-            <th>Doctor</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {appointments.map((a) => (
-            <tr key={a._id}>
-              <td>{a.userId?.name}</td>
-              <td>{a.userId?.email}</td>
-              <td>{a.doctorName}</td>
-              <td>{new Date(a.date).toLocaleDateString()}</td>
-              <td>{a.status}</td>
-
-              <td>
-                {a.status === "pending" && (
-                  <>
-                    <button onClick={() => updateStatus(a._id, "confirmed")}>
-                      Confirm
-                    </button>
-                    <button onClick={() => updateStatus(a._id, "cancelled")}>
-                      Cancel
-                    </button>
-                    <button onClick={() => setEditing(a)}>Edit</button>
-                  </>
-                )}
-              </td>
+      {appointments.length === 0 ? (
+        <p>No appointments</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Email</th>
+              <th>Doctor</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {appointments.map((a) => (
+              <tr key={a._id}>
+                <td>{a.userId?.name}</td>
+                <td>{a.userId?.email}</td>
+                <td>{a.doctorName}</td>
+                <td>{new Date(a.date).toLocaleDateString()}</td>
+                <td>{a.status}</td>
+
+                <td>
+                  {a.status === "pending" && (
+                    <>
+                      <button onClick={() => updateStatus(a._id, "confirmed")}>
+                        Confirm
+                      </button>
+                      <button onClick={() => updateStatus(a._id, "cancelled")}>
+                        Cancel
+                      </button>
+                      <button onClick={() => setEditing(a)}>Edit</button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
       {/* DOCTORS */}
 
       <h3>Doctors</h3>
 
       <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Spec</th>
-            <th>Time</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
         <tbody>
           {doctors.map((d) => (
             <tr key={d._id}>
@@ -257,15 +237,10 @@ export default function AdminDashboard() {
                 {d.startTime} - {d.endTime}
               </td>
               <td>{d.status}</td>
-
               <td>
                 <button onClick={() => toggleDoctor(d)}>
-                  {(d.status || "").toString().toLowerCase() === "active"
-                    ? "Disable"
-                    : "Enable"}
-                
+                  {d.status === "active" ? "Disable" : "Enable"}
                 </button>
-
                 <button onClick={() => deleteDoctor(d._id)}>Delete</button>
               </td>
             </tr>
@@ -286,11 +261,8 @@ export default function AdminDashboard() {
 
       {editing && (
         <div className="modal">
-          <h3>Reschedule</h3>
-
           <input type="date" onChange={(e) => setNewDate(e.target.value)} />
           <input type="time" onChange={(e) => setNewTime(e.target.value)} />
-
           <button onClick={reschedule}>Save</button>
           <button onClick={() => setEditing(null)}>Close</button>
         </div>
