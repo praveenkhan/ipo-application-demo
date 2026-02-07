@@ -37,47 +37,58 @@ export default function Login() {
     }
   };
 
-  return (
-    <div className="login-wrapper">
-      {/* LEFT PANEL */}
-      <div className="login-left">
-        <div className="brand-box">
-          <h1>Hospital</h1>
-          <p>Appointment Booking System</p>
-        </div>
-      </div>
 
-      {/* RIGHT PANEL */}
-      <div className="login-right">
-        <form className="login-card" onSubmit={handleLogin}>
-          <h2>Login</h2>
-          <span className="subtitle">Welcome back</span>
+ return (
+   <div className="glass-page">
+     <div className="glass-container">
+       {/* LEFT CONTENT */}
 
-          <input
-            name="email"
-            type="email"
-            placeholder="Email address"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
+       <div className="glass-left">
+         <h4>Hospital</h4>
 
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+         <h1>
+           BOOK
+           <br />
+           APPOINTMENTS
+         </h1>
 
-          <button type="submit">Login</button>
+         <p>
+           Manage your healthcare digitally.
+           <br />
+           Schedule doctors instantly.
+         </p>
+       </div>
 
-          <p className="register-link">
-            New user? <Link to="/register">Create an account</Link>
-          </p>
-        </form>
-      </div>
-    </div>
-  );
-}
+       {/* RIGHT LOGIN */}
+
+       <form className="login-card" onSubmit={handleLogin}>
+         <h2 className="login-title">Login</h2>
+
+         <label>Email</label>
+         <input
+           name="email"
+           value={form.email}
+           onChange={handleChange}
+           placeholder="Enter email"
+         />
+
+         <label>Password</label>
+         <input
+           type="password"
+           name="password"
+           value={form.password}
+           onChange={handleChange}
+           placeholder="Password"
+         />
+
+         <button>Sign In</button>
+
+         <p className="login-footer">
+           New user? <Link to="/register">Create Account</Link>
+         </p>
+       </form>
+     </div>
+   </div>
+ );
+ }
+

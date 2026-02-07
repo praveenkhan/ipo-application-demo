@@ -52,70 +52,49 @@ export default function Register() {
   };
 
   return (
-    <div className="register-wrapper">
-      {/* LEFT PANEL */}
-      <div className="register-left">
-        <div className="brand-box">
-          <h1>Hospital</h1>
-          <p>Appointment Booking System</p>
-        </div>
+  
+  <div className="auth-page">
+
+    <div className="auth-container">
+
+      {/* LEFT CONTENT */}
+
+      <div className="auth-left">
+        <h4>Hospital</h4>
+
+        <h1>
+          BOOK<br />APPOINTMENTS
+        </h1>
+
+        <p>
+          Manage your healthcare digitally.<br />
+          Schedule doctors instantly.
+        </p>
       </div>
 
-      {/* RIGHT PANEL */}
-      <div className="register-right">
-        <form className="register-card" onSubmit={handleRegister}>
-          <span className="subtitle">REGISTER</span>
+      {/* RIGHT REGISTER CARD */}
 
-          <input
-            name="name"
-            placeholder="Full Name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
+      <form className="auth-card" onSubmit={handleRegister}>
 
-          <input
-            name="email"
-            type="email"
-            placeholder="Email address"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
+        <h2>Register</h2>
 
-          <input
-            name="phone"
-            placeholder="Phone number"
-            value={form.phone}
-            onChange={handleChange}
-            required
-          />
+        <input name="name" placeholder="Full Name" onChange={handleChange} />
+        <input name="email" placeholder="Email" onChange={handleChange} />
+        <input name="phone" placeholder="Phone" onChange={handleChange} />
+        <input name="password" type="password" placeholder="Password" onChange={handleChange} />
+        <input name="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} />
 
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+        <button>Create Account</button>
 
-          <input
-            name="confirmPassword"
-            type="password"
-            placeholder="Confirm password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            required
-          />
+        <p>
+          Already user? <Link to="/login">Login</Link>
+        </p>
 
-          <button>Create Account</button>
+      </form>
 
-          <p className="login-link">
-            Already user? <Link to="/login">Login</Link>
-          </p>
-        </form>
-      </div>
     </div>
-  );
+
+  </div>
+);
+  
 }

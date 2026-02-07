@@ -1,102 +1,113 @@
-* {
-  box-sizing: border-box;
-}
-
 body {
-  margin: 0;
-  font-family: Inter, sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
-/* FULL PAGE */
-
-.login-wrapper {
+.glass-page {
   height: 100vh;
-  display: flex;
-  background: url("../assets/login.jpeg") center/cover no-repeat;
-}
-
-/* LEFT SIDE */
-
-.login-left {
-  flex: 1;
-  padding: 60px;
-  color: white;
-  display: flex;
-  align-items: center;
-}
-
-.brand-box h1 {
-  font-size: 48px;
-  margin-bottom: 10px;
-}
-
-.brand-box p {
-  font-size: 18px;
-  opacity: 0.8;
-}
-
-/* RIGHT SIDE */
-
-.login-right {
-  width: 420px;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
+  background: #efe7e7;
 }
 
-/* LOGIN CARD */
+
+
+
+.glass-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+ background: url("../assets/register.avif") center/cover no-repeat;
+  justify-content: space-evenly;
+  overflow: hidden;
+  position: relative;
+}
+
+
+.glass-left {
+  padding: 60px;
+  color: white;
+  max-width: 400px;
+}
+
+.glass-left h4 {
+  letter-spacing: 2px;
+  opacity: 0.8;
+}
+
+.glass-left h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 15px 0;
+}
+
+.glass-left p {
+  opacity: 0.85;
+  line-height: 1.6;
+}
+
 
 .login-card {
-  width: 320px;
-  padding: 30px;
+  width: 340px;
+  height: 440px;
+  padding: 40px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.85);
+
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
 }
 
-.login-card h2 {
-  margin-bottom: 4px;
+/* TITLE */
+
+.login-title {
+  text-align: center;
+  margin-bottom: 25px;
 }
 
-.subtitle {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 20px;
-}
-
-/* INPUTS */
 
 .login-card input {
-  margin-bottom: 15px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  margin: 8px 0 16px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
 }
 
 /* BUTTON */
 
 .login-card button {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
   background: #2563eb;
   color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
   cursor: pointer;
-  margin-top: 5px;
 }
 
-/* REGISTER */
+/* FOOTER */
 
-.register-link {
+.login-footer {
   margin-top: 15px;
   font-size: 13px;
   text-align: center;
 }
 
-.register-link a {
-  color: #2563eb;
-  text-decoration: none;
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .glass-container {
+    width: 90%;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .glass-login {
+    width: 100%;
+  }
 }
