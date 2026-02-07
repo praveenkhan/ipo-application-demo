@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar";
 import AdminNavbar from "./components/AdminNavbar";
 
 import Register from "./pages/Register";
-import Login from "./pages/LoginJoy";
+import Login from "./pages/Login";
 import Home from "./pages/Home";
 import BookAppointment from "./pages/BookAppointment";
 import MyAppointments from "./pages/MyAppointments";
