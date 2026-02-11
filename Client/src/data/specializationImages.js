@@ -8,20 +8,20 @@ import oncology from "../assets/Oncologist.jpg";
 import ophthalmology from "../assets/Ophthalmologist.jpg";
 import orthopedic from "../assets/orthopedic.jpg";
 import ent from "../assets/ent.jpg";
-import pediatrics from "../assets/pediatrician.avif";
-import psychiatry from "../assets/psychiatrist.avif";
-import pulmonology from "../assets/pulmonologist.jpg";
-import urology from "../assets/urologist.jpg";
+import pediatrics from "../assets/Pediatrician.avif";
+import psychiatry from "../assets/Psychiatrist.avif";
+import pulmonology from "../assets/Pulmonologist.jpg";
+import urology from "../assets/Urologist.jpg";
 import anesthesia from "../assets/Anesthesiologist.jpg";
-import cardiothoracic from "../assets/cardiothoracic.jpg"
+import cardiothoracic from "../assets/cardiothoracic.jpg";
 import general from "../assets/general.jpg";
 import plastic from "../assets/plastic.jpg";
-import pathology from "../assets/pathologist.jpg";
-import radiology from "../assets/radiologist.jpg";
+import pathology from "../assets/Pathologist.jpg";
+import radiology from "../assets/Radiologist.jpg";
 import allergy from "../assets/Allergist.jpg";
 import family from "../assets/family.jpg";
-import internal from "../assets/internist.webp";
-import allergist from "../assets/allergy.webp"
+import internal from "../assets/Internist.webp";
+import allergist from "../assets/allergy.webp";
 
 export const specializationImages = {
   Cardiologist: cardiology,
