@@ -10,9 +10,10 @@ import BookAppointment from "./pages/BookAppointment";
 import MyAppointments from "./pages/MyAppointments";
 import Doctors from "./pages/Doctors";
 import DoctorProfile from "./pages/DoctorProfile";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./components/AdminDashboard";
 import { Toaster } from "react-hot-toast";
-
+import Specialization from "./pages/specialization";
+import Footer from "./pages/Footer";
 
 export default function App() {
   const location = useLocation();
@@ -21,6 +22,19 @@ export default function App() {
   // ✅ Check admin page
   const isAdminPage =
     role === "admin" && location.pathname.startsWith("/admin");
+
+  // ✅ Check patient pages for footer
+  const patientPages = [
+    "/home",
+    "/doctors",
+    "/specialization",
+    "/doctor",
+    "/book",
+    "/my-appointments",
+  ];
+  const isPatientPage = patientPages.some((page) =>
+    location.pathname.startsWith(page),
+  );
 
   return (
     <>
@@ -38,16 +52,24 @@ export default function App() {
         {/* PATIENT */}
         <Route path="/home" element={<Home />} />
         <Route path="/doctors" element={<Doctors />} />
+        <Route path="/specialization" element={<Specialization />} />
+        <Route path="/specialization/:name" element={<Doctors />} />
         <Route path="/doctor/:id" element={<DoctorProfile />} />
         <Route path="/book" element={<BookAppointment />} />
         <Route path="/my-appointments" element={<MyAppointments />} />
 
         {/* ADMIN */}
-        <Route path="/admin" element={ role === "admin" ? <AdminDashboard /> : <Navigate to="/home" />} />
+        <Route
+          path="/admin"
+          element={
+            role === "admin" ? <AdminDashboard /> : <Navigate to="/home" />
+          }
+        />
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+      {isPatientPage && <Footer />}
     </>
   );
 }

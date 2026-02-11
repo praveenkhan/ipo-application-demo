@@ -19,11 +19,52 @@ body {
 }
 
 /* ========= HERO ========= */
+/* ========= HERO ========= */
 .hero {
-  padding: 90px 20px;
-  text-align: center;
-  background: linear-gradient(135deg, #3b82f6, #0ea5e9);
-  color: white;
+  margin-top: 120px; /* pushes hero below fixed navbar */
+  padding: 0;
+}
+
+.hero-img {
+  height: 80vh;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  width: 100%;
+}
+
+/* Dark gradient overlay for readability */
+.carousel-item {
+  position: relative;
+}
+.carousel-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to left,rgba(85, 82, 82, 0), rgb(9, 9, 9));
+  z-index: 1;
+  pointer-events: none;
+}
+
+.carousel-caption {
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  transform: translateY(-50%);
+  z-index: 2;
+  text-align: left !important;
+  color: #fff;
+  max-width: 640px;
+}
+.carousel-caption h1 {
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.carousel-caption p {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 18px;
 }
 
 .title {
@@ -44,6 +85,19 @@ body {
   gap: 15px;
   justify-content: center;
   flex-wrap: wrap;
+}
+.hero-img {
+  height: 80vh;
+  object-fit: cover;
+  opacity: inherit;
+}
+
+.carousel-caption {
+  bottom: 30%;
+}
+
+.carousel-caption h1 {
+  font-size: 48px;
 }
 
 /* ========= BUTTONS ========= */
@@ -126,7 +180,7 @@ body {
   background: white;
   padding: 22px;
   border-radius: 16px;
-  box-shadow: 0px 4px 24px rgba(0,0,0,0.06);
+  box-shadow: 0px 4px 24px rgba(0, 0, 0, 0.06);
   transition: 0.25s ease;
   border: 1px solid transparent;
 }
@@ -164,7 +218,6 @@ body {
 .book-btn:hover {
   background: #1e40af;
 }
-
 
 /* ========= ABOUT ========= */
 .about {
