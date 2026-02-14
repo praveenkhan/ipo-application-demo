@@ -10,16 +10,18 @@ export default function Dashboard() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
-      .then(data => {
+      .then(res => {
+        const list = res.data || [];
+
         setStats({
-          total: data.length,
-          pending: data.filter(a => a.status === "pending").length,
-          confirmed: data.filter(a => a.status === "confirmed").length,
-          cancelled: data.filter(a => a.status === "cancelled").length,
-          completed: data.filter(a => a.status === "completed").length,
+          total: list.length,
+          pending: list.filter(a => a.status === "pending").length,
+          confirmed: list.filter(a => a.status === "confirmed").length,
+          cancelled: list.filter(a => a.status === "cancelled").length,
+          completed: list.filter(a => a.status === "completed").length,
         });
       });
-  }, []);
+  }, [token]);
 
   if (!stats) return <p>Loading...</p>;
 
