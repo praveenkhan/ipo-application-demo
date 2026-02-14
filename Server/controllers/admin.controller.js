@@ -5,7 +5,7 @@ import Doctor from "../models/Doctor.js";
 
 export const getAllAppointments = async (req, res) => {
   try {
-    const { date, doctor, status, search } = req.query;
+    const { date, doctor, status, search, page = 1, limit = 6 } = req.query;
 
     let query = {};
 
@@ -30,7 +30,20 @@ export const getAllAppointments = async (req, res) => {
       );
     }
 
-    res.json(appointments);
+    // Pagination
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
+    const totalAppointments = appointments.length;
+    const totalPages = Math.ceil(totalAppointments / limitNum);
+    const startIndex = (pageNum - 1) * limitNum;
+    const paginatedAppointments = appointments.slice(startIndex, startIndex + limitNum);
+
+    res.json({
+      data: paginatedAppointments,
+      totalAppointments,
+      totalPages,
+      currentPage: pageNum,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

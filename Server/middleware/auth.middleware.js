@@ -11,16 +11,15 @@ const authMiddleware = (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // support tokens that use either `id` or `userId` in the payload
-    const userId = decoded.userId || decoded.id;
-    req.userId = userId;
-    // populate `req.user` so controllers can access `req.user.id`
-    req.user = { id: userId };
-    req.role = decoded.role || decoded?.role;
+    // Standardize req.user and req.role
+    req.userId = decoded.userId || decoded.id; // Legacy support
+    req.user = { id: req.userId }; // Controllers can use req.user.id
+    req.role = decoded.role || "patient"; // Default to patient if missing
 
     next();
   } catch (err) {
-    res.status(401).json({ message: "Invalid token" });
+    console.error("Auth Error:", err.message);
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 

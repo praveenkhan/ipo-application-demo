@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Outlet } from "react-router-dom";
 
 export default function AdminLayout({ children }) {
   const navigate = useNavigate();
@@ -18,9 +18,10 @@ export default function AdminLayout({ children }) {
 
         <nav className="flex-1 px-4 py-6 space-y-2 text-sm">
           <SidebarLink to="/admin" label="Dashboard" />
-          <SidebarLink to="/admin" label="Appointments" />
-          <SidebarLink to="/admin" label="Doctors" />
-          <SidebarLink to="/admin" label="Users" />
+          <SidebarLink to="/admin/appointments" label="Appointments" />
+          <SidebarLink to="/admin/doctors" label="Doctors" />
+          <SidebarLink to="/admin/analytics" label="Analytics" />
+          <SidebarLink to="/admin/settings" label="Settings" />
         </nav>
 
         <div className="p-4 border-t border-slate-800">
@@ -52,7 +53,10 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* CONTENT */}
-        <main className="p-8">{children}</main>
+        <main className="p-8">
+          <Outlet />
+          {children}
+        </main>
       </div>
     </div>
   );
@@ -63,8 +67,7 @@ function SidebarLink({ to, label }) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `block px-4 py-2 rounded ${
-          isActive ? "bg-blue-600" : "text-gray-300 hover:bg-slate-800"
+        `block px-4 py-2 rounded ${isActive ? "bg-blue-600" : "text-gray-300 hover:bg-slate-800"
         }`
       }
     >

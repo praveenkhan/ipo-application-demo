@@ -6,11 +6,11 @@ const appointmentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true, // Optimize queries by userId
     },
 
     patientName: {
-      type: mongoose.Schema.Types.ObjectId,
-      type: String,
+      type: String, // Fixed duplicate type definition
       required: true,
       trim: true,
       minlength: 3,
@@ -38,12 +38,15 @@ const appointmentSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "cancelled"],
+      enum: ["pending", "confirmed", "cancelled", "completed"],
       default: "pending",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
+// Optimize sorting for "My Appointments"
+appointmentSchema.index({ userId: 1, date: -1, time: -1 });
 
 // 🚫 PREVENT DOUBLE BOOKING (CRITICAL)
 appointmentSchema.index({ doctorId: 1, date: 1, time: 1 }, { unique: true });

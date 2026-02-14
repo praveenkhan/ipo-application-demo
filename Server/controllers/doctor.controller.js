@@ -1,10 +1,38 @@
 import Doctor from "../models/Doctor.js";
 
-// Get all doctors
+// Get all doctors with pagination
 export const getDoctors = async (req, res) => {
   try {
-    const doctors = await Doctor.find({ isDeleted: { $ne: true } });
-    res.json(doctors);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const search = req.query.search || "";
+    const escapeRegex = (text) => text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    const safeSearch = escapeRegex(search);
+
+    const skip = (page - 1) * limit;
+
+    const query = {
+      isDeleted: { $ne: true },
+      $or: [
+        { name: { $regex: safeSearch, $options: "i" } },
+        { specialization: { $regex: safeSearch, $options: "i" } },
+      ],
+    };
+
+    const doctors = await Doctor.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Doctor.countDocuments(query);
+
+    res.json({
+      data: doctors,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalDoctors: total,
+    });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -81,7 +109,7 @@ export const deleteDoctor = async (req, res) => {
     doctor.isDeleted = true;
     await doctor.save();
 
-    res.json({ message: "Doctor deleted" });
+    res.status(200).json({ message: "Doctor deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -1,111 +1,61 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import API_BASE_URL from "../config/api";
-import "./DoctorProfile.css";
 
 const DOCTOR_API = `${API_BASE_URL}/api/doctors`;
-const APPOINTMENT_API = `${API_BASE_URL}/api/appointments/`;
 
-// Generate slots between start & end time
-function generateSlots(start, end, duration) {
-  const slots = [];
-  let [h, m] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
-
-  while (h < eh || (h === eh && m < em)) {
-    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-    m += duration;
-
-    if (m >= 60) {
-      h++;
-      m -= 60;
-    }
-  }
-
-  return slots;
-}
-
-function DoctorProfile() {
+export default function DoctorProfile() {
   const { id } = useParams();
 
   const [doctor, setDoctor] = useState(null);
-  const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
-    // Fetch doctor by ID
     fetch(`${DOCTOR_API}/${id}`)
-      .then((res) => res.json())
-      .then((data) => setDoctor(data))
-      .catch(console.error);
-    console.log("Doctor ID from URL:", id);
-    console.log("Fetching:", `${DOCTOR_API}/${id}`);
-
-    // Fetch all appointments
-    fetch(APPOINTMENT_API)
-      .then((res) => res.json())
-      .then((data) => setAppointments(data))
-      .catch(console.error);
+      .then((r) => r.json())
+      .then(setDoctor);
   }, [id]);
 
-  if (!doctor) return <h2>Loading doctor profile...</h2>;
-
-  // Generate slots
-  const allSlots = generateSlots(
-    doctor.startTime,
-    doctor.endTime,
-    doctor.slotDuration,
-  );
-
-  const today = new Date().toISOString().split("T")[0];
-
-  // Get booked slots for this doctor today
-  const bookedSlots = appointments
-    .filter((a) => a.doctorId === doctor._id && a.date === today)
-    .map((a) => a.time);
-
-  // Available slots
-  const availableSlots = allSlots.filter((slot) => !bookedSlots.includes(slot));
+  if (!doctor)
+    return <p className="pt-[140px] text-center">Loading profile…</p>;
 
   return (
-    <div className="profile-container">
-      <div className="profile-card">
-        <h2>{doctor.name}</h2>
-        <p className="spec">{doctor.specialization}</p>
-
-        {doctor.experience && (
-          <p>
-            <strong>Experience:</strong> {doctor.experience} yrs
-          </p>
-        )}
-
-        {doctor.rating && (
-          <p>
-            <strong>Rating:</strong> ⭐ {doctor.rating}
-          </p>
-        )}
-
-        <p>{doctor.description}</p>
-
-        <h3>Available Slots Today</h3>
-
-        {availableSlots.length ? (
-          <div className="slot-grid">
-            {availableSlots.map((slot) => (
-              <span key={slot} className="slot">
-                {slot}
-              </span>
-            ))}
+    <div className="pt-[140px] pb-20 bg-slate-100 min-h-screen">
+      <div className="max-w-4xl mx-auto px-6">
+        <div className="bg-white rounded-2xl shadow-xl p-10 flex flex-col items-center text-center">
+          <div className="w-32 h-32 rounded-full bg-blue-600 text-white flex items-center justify-center text-5xl font-bold mb-6">
+            {doctor.name?.charAt(0)}
           </div>
-        ) : (
-          <p>No slots available today</p>
-        )}
 
-        <Link to={`/book?doctorId=${doctor._id}`} className="btn-book">
-          Book Appointment
-        </Link>
+          <h2 className="text-3xl font-bold mb-2">{doctor.name}</h2>
+          <p className="text-blue-600 text-lg mb-4">{doctor.specialization}</p>
+
+          <div className="flex gap-6 mb-8 text-gray-600">
+            {doctor.experience && (
+              <p>
+                <strong>Experience:</strong> {doctor.experience} years
+              </p>
+            )}
+            {doctor.rating && (
+              <p>
+                <strong>Rating:</strong> ⭐ {doctor.rating}
+              </p>
+            )}
+          </div>
+
+          {doctor.description && (
+            <p className="max-w-2xl text-gray-500 leading-relaxed mb-8">
+              {doctor.description}
+            </p>
+          )}
+
+          <Link
+            to={`/book?doctorId=${doctor._id}`}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full text-lg shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1"
+          >
+            Book Appointment Now
+          </Link>
+        </div>
       </div>
     </div>
   );
 }
-
-export default DoctorProfile;

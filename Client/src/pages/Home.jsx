@@ -9,15 +9,18 @@ const API_URL = `${API_BASE_URL}/api/doctors`;
 
 export default function Home() {
   const [specialties, setSpecialties] = useState([]);
+  const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    fetch(API_URL)
+    fetch(`${API_URL}?limit=100`)
       .then((res) => res.json())
-      .then((data) => {
+      .then((result) => {
+        const doctors = result.data || result || [];
+
         const unique = {};
 
-        data.forEach((doc) => {
-          if (!unique[doc.specialization]) {
+        doctors.forEach((doc) => {
+          if (doc.specialization && !unique[doc.specialization]) {
             unique[doc.specialization] = {
               name: doc.specialization,
               description: doc.description || "Expert medical care",
@@ -26,71 +29,51 @@ export default function Home() {
         });
 
         setSpecialties(Object.values(unique));
-      });
+      })
+      .catch(() => setSpecialties([]));
   }, []);
 
   const slides = [
-    {
-      img: img1,
-      title: "Hospital Appointment Booking",
-      desc: "Book doctors instantly",
-    },
-    {
-      img: img2,
-      title: "Find Best Doctors",
-      desc: "Specialists near you",
-    },
-    {
-      img: img3,
-      title: "Manage Your Visits",
-      desc: "Track appointments easily",
-    },
+    { img: img1, title: "Hospital Appointment Booking", desc: "Book doctors instantly" },
+    { img: img2, title: "Find Best Doctors", desc: "Specialists near you" },
+    { img: img3, title: "Manage Your Visits", desc: "Track appointments easily" },
   ];
-
-  const [index, setIndex] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % slides.length);
     }, 4000);
-
     return () => clearInterval(timer);
   }, []);
-  function HeroSlide() {
-    return (
-      <div className="h-full relative">
-        <img src={slides[index].img} className="w-full h-full object-bottom" />
-
-        <div className="absolute inset-0 bg-black/40" />
-
-        <div className="absolute inset-0 flex items-center justify-center text-white text-center px-4">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-3">
-              {slides[index].title}
-            </h1>
-
-            <p className="mb-6">{slides[index].desc}</p>
-
-            <div className="flex justify-center gap-4">
-              <Link to="/doctors" className="bg-blue-600 px-6 py-2 rounded">
-                Book Appointment
-              </Link>
-
-              <Link to="/my-appointments" className="border px-6 py-2 rounded">
-                My Appointments
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div>
-      {/* HERO SLIDER */}
+
+      {/* HERO */}
       <section className="relative h-[80vh] mt-[120px] overflow-hidden">
-        <HeroSlide />
+        <div className="h-full relative">
+          <img src={slides[index].img} className="w-full h-full object-cover" />
+
+          <div className="absolute inset-0 bg-black/40" />
+
+          <div className="absolute inset-0 flex items-center justify-center text-white text-center px-4">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-3">
+                {slides[index].title}
+              </h1>
+              <p className="mb-6">{slides[index].desc}</p>
+
+              <div className="flex justify-center gap-4">
+                <Link to="/doctors" className="bg-blue-600 px-6 py-2 rounded">
+                  Book Appointment
+                </Link>
+                <Link to="/my-appointments" className="border px-6 py-2 rounded">
+                  My Appointments
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* STATS */}
@@ -104,8 +87,8 @@ export default function Home() {
       </section>
 
       {/* SPECIALIZATION */}
-      {specialties.slice(0, 1).map((s) => (
-        <section key={s.name} className="py-16">
+      {specialties.length > 0 && (
+        <section className="py-16">
           <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center px-4">
             <div>
               <h1 className="text-3xl font-bold mb-4">
@@ -128,15 +111,13 @@ export default function Home() {
             <img src={img2} className="w-full" />
           </div>
         </section>
-      ))}
+      )}
 
       {/* ABOUT */}
       <section className="text-center py-12">
         <h2 className="text-2xl font-semibold mb-2">About Our Hospital</h2>
-
         <p className="text-gray-600">
-          Providing quality healthcare with experienced doctors and modern
-          facilities.
+          Providing quality healthcare with experienced doctors and modern facilities.
         </p>
       </section>
     </div>

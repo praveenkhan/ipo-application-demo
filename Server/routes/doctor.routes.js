@@ -7,13 +7,13 @@ import {
 
 const router = express.Router();
 
-// GET all confirmed doctors
-// GET /api/doctors
+// GET all confirmed doctors (Public)
 router.get("/", getDoctors);
-///get by idd//
+
+// GET doctor by ID (Public)
 router.get("/:id", getDoctorById);
-// GET doctors by specialization
-// GET /api/doctors/specialization?name=Cardiologist
+
+// GET doctors by specialization (Public)
 router.get("/specialization", getDoctorsBySpecialization);
 
 export default router;

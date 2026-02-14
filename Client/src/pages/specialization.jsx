@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import API_BASE_URL from "../config/api";
 import doctorImg from "../assets/img/bg-img/hero2.png";
 import { specializationImages } from "../data/specializationImages";
@@ -11,14 +11,19 @@ export default function Specialization() {
   const [specialties, setSpecialties] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 6;
+
   useEffect(() => {
-    fetch(API_URL)
-      .then((res) => res.json())
-      .then((data) => {
+    fetch(`${API_URL}?limit=100`)
+      .then(res => res.json())
+      .then(result => {
+        const doctors = result.data || result || [];
+
         const unique = {};
 
-        data.forEach((doc) => {
-          if (!unique[doc.specialization]) {
+        doctors.forEach(doc => {
+          if (doc.specialization && !unique[doc.specialization]) {
             unique[doc.specialization] = {
               name: doc.specialization,
               description: doc.description || "Expert medical care",
@@ -32,10 +37,23 @@ export default function Specialization() {
       .catch(() => setLoading(false));
   }, []);
 
-  const filtered = specialties.filter(
-    (s) =>
+  const filtered = useMemo(() => {
+    return specialties.filter(s =>
       s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.description.toLowerCase().includes(search.toLowerCase()),
+      s.description.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [specialties, search]);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedSpecialties = filtered.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
   );
 
   if (loading)
@@ -43,81 +61,104 @@ export default function Specialization() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 pt-[120px]">
+
       {/* HERO */}
       <section className="grid md:grid-cols-2 gap-14 items-center py-20">
-        {/* LEFT */}
+
         <div>
           <h1 className="text-4xl md:text-5xl font-bold mb-5">
             Find Your Specialization
           </h1>
 
-          <p className="text-gray-500 mb-8 leading-relaxed">
-            Browse our wide range of medical specializations and schedule
-            appointments with qualified healthcare professionals.
+          <p className="text-gray-500 mb-8">
+            Browse medical specializations and book appointments instantly.
           </p>
 
           {filtered[0] && (
             <Link
               to={`/doctors?specialization=${encodeURIComponent(filtered[0].name)}`}
-              className="inline-block bg-blue-600 hover:bg-blue-700 transition text-white px-8 py-3 rounded-lg shadow"
+              className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg"
             >
               View Doctors
             </Link>
           )}
         </div>
 
-        {/* RIGHT */}
         <div className="text-center">
-          <img
-            src={doctorImg}
-            className="mx-auto max-h-[360px] drop-shadow-xl"
-          />
+          <img src={doctorImg} className="mx-auto max-h-[360px]" />
         </div>
+
       </section>
 
       {/* SEARCH */}
-      <section className="text-center py-10">
+      <div className="mb-12 text-center">
         <h2 className="text-2xl font-semibold mb-5">Search Specializations</h2>
 
         <input
-          className="border rounded-xl px-5 py-3 w-full max-w-lg mx-auto outline-none focus:ring-2 focus:ring-blue-500"
-          type="text"
+          className="border rounded-xl px-5 py-3 w-full max-w-lg mx-auto"
           placeholder="Search specialization..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-      </section>
+      </div>
 
       {/* CARDS */}
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 pb-20">
-        {filtered.map((s) => (
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 pb-10">
+
+        {paginatedSpecialties.map(s => (
           <div
             key={s.name}
-            className="group bg-white rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 p-5 flex flex-col"
+            className="bg-white rounded-xl shadow hover:shadow-xl transition p-5 flex flex-col"
           >
             <img
-              src={specializationImages[s.name]}
-              className="h-40 object-contain mb-6 mx-auto group-hover:scale-105 transition"
+              src={specializationImages[s.name] || doctorImg}
+              className="h-40 object-contain mb-6 mx-auto"
               alt={s.name}
             />
 
-            <h4 className="text-blue-600 text-lg font-semibold mb-2">
-              {s.name}
-            </h4>
+            <h4 className="text-blue-600 font-semibold mb-2">{s.name}</h4>
 
-            <p className="text-gray-500 mb-6 text-sm leading-relaxed">
-              {s.description}
-            </p>
+            <p className="text-gray-500 mb-6 text-sm">{s.description}</p>
 
             <Link
               to={`/specialization/${encodeURIComponent(s.name)}`}
-              className="mt-auto bg-blue-600 hover:bg-blue-700 transition text-white text-center py-2 rounded-lg"
+              className="mt-auto bg-blue-600 text-white text-center py-2 rounded-lg"
             >
               View Doctors
             </Link>
           </div>
         ))}
+
+        {!paginatedSpecialties.length && (
+          <p className="col-span-full text-center text-gray-500">
+            No specialization found
+          </p>
+        )}
+
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center pb-20 gap-4">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="px-6 py-2 border rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="self-center text-gray-600">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => p + 1)}
+            className="px-6 py-2 border rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
