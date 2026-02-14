@@ -1,7 +1,6 @@
 import Appointment from "../models/Appointment.js";
 import Doctor from "../models/Doctor.js";
 import User from "../models/User.js";
-
 // --------------------------------------------------
 // Helper: Generate slots
 // --------------------------------------------------
