@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import API_BASE_URL from "../config/api";
+import { getDoctorImage } from "../data/doctorImages";
+import {
+  FaCalendarCheck,
+  FaClock,
+  FaUserDoctor,
+  FaUser,
+  FaCalendarDays,
+  FaArrowRight,
+  FaChevronLeft,
+  FaChevronRight,
+  FaHospital,
+} from "react-icons/fa6";
 
 const API = `${API_BASE_URL}/api/appointments/my`;
 
@@ -12,7 +25,7 @@ export default function MyAppointments() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${API}?page=${page}&limit=10`, {
+    fetch(`${API}?page=${page}&limit=9`, {
       headers: {
         Authorization: "Bearer " + token,
       },
@@ -30,96 +43,192 @@ export default function MyAppointments() {
   }, [page, token]);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pt-[140px] pb-20">
-      {/* HEADER */}
-      <div className="mb-10">
-        <h2 className="text-3xl font-bold mb-2">My Appointments</h2>
-        <p className="text-gray-500">
-          Track and manage your booked doctor appointments
-        </p>
-      </div>
-
-      {/* LOADING STATE */}
-      {loading && (
-        <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading your appointments...</p>
-        </div>
-      )}
-
-      {/* EMPTY STATE */}
-      {!loading && appointments.length === 0 && (
-        <div className="bg-white rounded-xl shadow p-10 text-center text-gray-500">
-          No appointments found.
-        </div>
-      )}
-
-      {/* APPOINTMENT CARDS */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-        {appointments.map((a) => (
-          <div
-            key={a._id}
-            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-6"
-          >
-            {/* TOP */}
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-sm text-gray-400">{a.date}</span>
-
-              <StatusBadge status={a.status} />
+    <div className="bg-slate-50 min-h-screen pt-[130px] pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {/* HEADER & ACTIONS */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4 border-b border-slate-200 pb-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold uppercase tracking-wider mb-3 border border-blue-100">
+              <FaCalendarCheck className="text-xs" />
+              <span>Patient Portal</span>
             </div>
-
-            {/* BODY */}
-            <h3 className="font-semibold text-lg mb-2">{a.doctorName}</h3>
-
-            <p className="text-gray-500 mb-3">Patient: {a.patientName}</p>
-
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>🕒 {a.time}</span>
-              <span>📅 {a.date}</span>
-            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              My Appointments
+            </h1>
+            <p className="text-slate-500 text-sm mt-1">
+              Review and manage your scheduled doctor consultations and visits
+            </p>
           </div>
-        ))}
-      </div>
 
-      {/* Pagination Controls */}
-      {!loading && totalPages > 1 && (
-        <div className="flex justify-center gap-4">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-            className="px-6 py-2 border rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button>
-          <span className="self-center text-gray-600">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-            className="px-6 py-2 border rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Next
-          </button>
+          <div>
+            <Link
+              to="/book"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition text-sm"
+            >
+              <span>Book New Appointment</span>
+              <FaArrowRight className="text-xs" />
+            </Link>
+          </div>
         </div>
-      )}
+
+        {/* LOADING SKELETON */}
+        {loading && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div
+                key={n}
+                className="bg-white rounded-3xl p-6 border border-slate-200 animate-pulse space-y-4"
+              >
+                <div className="flex justify-between items-center">
+                  <div className="h-4 bg-slate-100 rounded w-24" />
+                  <div className="h-6 bg-slate-100 rounded-full w-20" />
+                </div>
+                <div className="h-6 bg-slate-100 rounded w-3/4" />
+                <div className="h-4 bg-slate-100 rounded w-1/2" />
+                <div className="h-10 bg-slate-100 rounded-xl" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* EMPTY STATE */}
+        {!loading && appointments.length === 0 && (
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center max-w-lg mx-auto my-10 shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4">
+              <FaCalendarDays className="text-2xl" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">
+              No Appointments Scheduled
+            </h3>
+            <p className="text-slate-500 text-sm leading-relaxed mb-6">
+              You do not have any active or past appointments yet. Book a consultation with our verified doctors in just a few clicks.
+            </p>
+            <Link
+              to="/doctors"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-blue-500/20 transition text-sm"
+            >
+              <FaUserDoctor className="text-sm" />
+              <span>Browse Doctors</span>
+            </Link>
+          </div>
+        )}
+
+        {/* APPOINTMENT CARDS GRID */}
+        {!loading && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {appointments.map((a) => (
+              <div
+                key={a._id}
+                className="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 p-6 flex flex-col justify-between group"
+              >
+                <div>
+                  {/* TOP: DATE BADGE & STATUS */}
+                  <div className="flex justify-between items-center mb-5 pb-4 border-b border-slate-100">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
+                      <FaCalendarDays className="text-slate-400 text-[11px]" />
+                      {new Date(a.date).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+
+                    <StatusBadge status={a.status} />
+                  </div>
+
+                  {/* DOCTOR INFO */}
+                  <div className="flex items-start gap-3.5 mb-4">
+                    <img
+                      src={getDoctorImage({ name: a.doctorName })}
+                      alt={a.doctorName || "Doctor"}
+                      className="w-12 h-12 rounded-2xl object-cover object-top border border-slate-200 flex-shrink-0 shadow-xs"
+                      loading="lazy"
+                    />
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors">
+                        {a.doctorName || "Doctor Consultation"}
+                      </h3>
+                      <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                        <FaUser className="text-[10px] text-slate-400" />
+                        <span>Patient: <strong className="text-slate-700">{a.patientName}</strong></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* BOTTOM: TIME & LOCATION INFO */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-slate-800 bg-blue-50/70 text-blue-700 px-3 py-1.5 rounded-xl">
+                    <FaClock className="text-blue-500 text-[11px]" />
+                    {a.time}
+                  </span>
+
+                  <span className="inline-flex items-center gap-1 text-slate-400">
+                    <FaHospital className="text-[11px]" />
+                    Main Clinic
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* PAGINATION CONTROLS */}
+        {!loading && totalPages > 1 && (
+          <div className="flex justify-center items-center gap-3">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-xl hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition"
+            >
+              <FaChevronLeft className="text-xs" />
+              <span>Previous</span>
+            </button>
+
+            <span className="text-sm font-medium text-slate-600 px-3">
+              Page <strong className="text-slate-900 font-bold">{page}</strong> of {totalPages}
+            </span>
+
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-medium rounded-xl hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-xs transition"
+            >
+              <span>Next</span>
+              <FaChevronRight className="text-xs" />
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
 function StatusBadge({ status }) {
-  let color = "bg-gray-400";
+  let badgeStyle = "bg-slate-100 text-slate-700 border-slate-200";
+  let dotStyle = "bg-slate-400";
 
-  if (status === "confirmed") color = "bg-green-500";
-  if (status === "pending") color = "bg-yellow-400";
-  if (status === "cancelled") color = "bg-red-500";
-  if (status === "completed") color = "bg-blue-600"; // Added completed
+  if (status === "confirmed") {
+    badgeStyle = "bg-emerald-50 text-emerald-700 border-emerald-200";
+    dotStyle = "bg-emerald-500";
+  } else if (status === "pending") {
+    badgeStyle = "bg-amber-50 text-amber-700 border-amber-200";
+    dotStyle = "bg-amber-500 animate-pulse";
+  } else if (status === "cancelled") {
+    badgeStyle = "bg-rose-50 text-rose-700 border-rose-200";
+    dotStyle = "bg-rose-500";
+  } else if (status === "completed") {
+    badgeStyle = "bg-blue-50 text-blue-700 border-blue-200";
+    dotStyle = "bg-blue-500";
+  }
 
   return (
     <span
-      className={`${color} text-white text-xs px-3 py-1 rounded-full capitalize`}
+      className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full border capitalize ${badgeStyle}`}
     >
+      <span className={`w-1.5 h-1.5 rounded-full ${dotStyle}`}></span>
       {status}
     </span>
   );
 }
+
